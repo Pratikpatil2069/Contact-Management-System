@@ -1,5 +1,6 @@
 package ContactManagementSystem.ContactController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import ContactManagementSystem.ContactModel.ContactModel;
 import ContactManagementSystem.ContactServices.ContactServices;
+import ContactManagementSystem.Response.ApiResponse;
 import jakarta.validation.Valid;
 
 
@@ -29,33 +31,53 @@ public class ContactController {
 	private ContactServices contactServices;
 	
 	@PostMapping("/addContact")
-	public ResponseEntity<ContactModel> addContact(@Valid @RequestBody ContactModel contactModel) {
+	public ResponseEntity<ApiResponse<ContactModel>> addContact(@Valid @RequestBody ContactModel contactModel) {
+		
 		ContactModel contact= contactServices.addContact(contactModel);
-		return ResponseEntity.status(HttpStatus.CREATED).body(contact);
+		
+		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Contact Creted Successfully", contact, LocalDateTime.now());
+		
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	@PutMapping("/updateContact/{id}")
-	public ResponseEntity<ContactModel> updateContact(@PathVariable  String id,@Valid @RequestBody ContactModel contactModel) {
+	public ResponseEntity<ApiResponse<ContactModel>> updateContact(@PathVariable  String id,@Valid @RequestBody ContactModel contactModel) {
+		
 		ContactModel contact= contactServices.updateContact(id, contactModel);
-		return ResponseEntity.ok(contact);
+		
+		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Contact Updated Successfully", contact, LocalDateTime.now());
+
+		return ResponseEntity.ok(response);
 	}
 	
 	@DeleteMapping("/deleteContact/{id}")
-	public ResponseEntity<Void> deleteContact(@PathVariable String id) {
+	public ResponseEntity<ApiResponse<Void>>  deleteContact(@PathVariable String id) {
+		
 		 contactServices.deleteContact(id);
-		 return ResponseEntity.noContent().build();
+		 
+		 ApiResponse<Void> response=new ApiResponse<>(true,"Contact Deleted Successfully", null, LocalDateTime.now());
+
+		 return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/getAllContacts")
-	public ResponseEntity<List<ContactModel>> getAllContact(){
+	public ResponseEntity<ApiResponse<List<ContactModel>>>  getAllContact(){
+		
 		List<ContactModel> list= contactServices.getAllContacts();
-		return ResponseEntity.ok(list);
+		
+		ApiResponse<List<ContactModel>> response=new ApiResponse<>(true,"Fetched All Contacts  Successfully", list, LocalDateTime.now());
+
+		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/getContactById/{id}")
-	public ResponseEntity<ContactModel> getContactById(@PathVariable String id) {
+	public ResponseEntity<ApiResponse<ContactModel>>  getContactById(@PathVariable String id) {
+		
 		ContactModel contact= contactServices.getContactById(id);
-		return ResponseEntity.ok(contact);
+		
+		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Fetched Contact Successfully", contact, LocalDateTime.now());
+
+		return ResponseEntity.ok(response);
 	}
 	
 	
