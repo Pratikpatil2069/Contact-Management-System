@@ -1,6 +1,7 @@
 package ContactManagementSystem.ContactController;
 
 import java.time.LocalDateTime;
+
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ContactManagementSystem.ContactModel.ContactModel;
 import ContactManagementSystem.ContactServices.ContactServices;
+import ContactManagementSystem.ContactsDTO.ContactRequest;
+import ContactManagementSystem.ContactsDTO.ContactResponse;
 import ContactManagementSystem.Response.ApiResponse;
 import jakarta.validation.Valid;
 
@@ -31,21 +33,21 @@ public class ContactController {
 	private ContactServices contactServices;
 	
 	@PostMapping("/addContact")
-	public ResponseEntity<ApiResponse<ContactModel>> addContact(@Valid @RequestBody ContactModel contactModel) {
+	public ResponseEntity<ApiResponse<ContactResponse>> addContact(@Valid @RequestBody ContactRequest contactRequest) {
 		
-		ContactModel contact= contactServices.addContact(contactModel);
+		ContactResponse contactResponse= contactServices.addContact(contactRequest);
 		
-		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Contact Creted Successfully", contact, LocalDateTime.now());
+		ApiResponse<ContactResponse> response=new ApiResponse<>(true,"Contact Added Successfully", contactResponse, LocalDateTime.now());
 		
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 	
 	@PutMapping("/updateContact/{id}")
-	public ResponseEntity<ApiResponse<ContactModel>> updateContact(@PathVariable  String id,@Valid @RequestBody ContactModel contactModel) {
+	public ResponseEntity<ApiResponse<ContactResponse>> updateContact(@PathVariable  String id,@Valid @RequestBody ContactRequest contactRequest) {
 		
-		ContactModel contact= contactServices.updateContact(id, contactModel);
+		ContactResponse contactResponse= contactServices.updateContact(id, contactRequest);
 		
-		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Contact Updated Successfully", contact, LocalDateTime.now());
+		ApiResponse<ContactResponse> response=new ApiResponse<>(true,"Contact Updated Successfully", contactResponse, LocalDateTime.now());
 
 		return ResponseEntity.ok(response);
 	}
@@ -61,21 +63,21 @@ public class ContactController {
 	}
 	
 	@GetMapping("/getAllContacts")
-	public ResponseEntity<ApiResponse<List<ContactModel>>>  getAllContact(){
+	public ResponseEntity<ApiResponse<List<ContactResponse>>>  getAllContact(){
 		
-		List<ContactModel> list= contactServices.getAllContacts();
+		List<ContactResponse> contactResponse= contactServices.getAllContacts();
 		
-		ApiResponse<List<ContactModel>> response=new ApiResponse<>(true,"Fetched All Contacts  Successfully", list, LocalDateTime.now());
+		ApiResponse<List<ContactResponse>> response=new ApiResponse<>(true,"Fetched All Contacts  Successfully", contactResponse, LocalDateTime.now());
 
 		return ResponseEntity.ok(response);
 	}
 	
 	@GetMapping("/getContactById/{id}")
-	public ResponseEntity<ApiResponse<ContactModel>>  getContactById(@PathVariable String id) {
+	public ResponseEntity<ApiResponse<ContactResponse>>  getContactById(@PathVariable String id) {
 		
-		ContactModel contact= contactServices.getContactById(id);
+		ContactResponse contactResponse= contactServices.getContactById(id);
 		
-		ApiResponse<ContactModel> response=new ApiResponse<>(true,"Fetched Contact Successfully", contact, LocalDateTime.now());
+		ApiResponse<ContactResponse> response=new ApiResponse<>(true,"Fetched Contact Successfully", contactResponse, LocalDateTime.now());
 
 		return ResponseEntity.ok(response);
 	}

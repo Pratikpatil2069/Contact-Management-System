@@ -1,5 +1,6 @@
 package ContactManagementSystem.ContactServices;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -9,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import ContactManagementSystem.ContactModel.ContactModel;
 import ContactManagementSystem.ContactRepository.ContactRepository;
+import ContactManagementSystem.ContactsDTO.ContactRequest;
+import ContactManagementSystem.ContactsDTO.ContactResponse;
 import ContactManagementSystem.Exception.DuplicateResourceException;
 import ContactManagementSystem.Exception.ResourceNotFoundException;
 
@@ -18,48 +21,118 @@ public class ContactServices {
 	@Autowired
 	private ContactRepository contactRepository;
 	
-	public ContactModel addContact(ContactModel contactModel) {
-		if(contactRepository.existsByEmail(contactModel.getEmail())) {
-			throw new DuplicateResourceException("Email is Already Exist: "+contactModel.getEmail());
+	public ContactResponse addContact(ContactRequest contactRequest) {
+		if(contactRepository.existsByEmail(contactRequest.getEmail())) {
+			throw new DuplicateResourceException("Email is Already Exist: "+contactRequest.getEmail());
 		}
-		if(contactRepository.existsByPhoneNumber(contactModel.getPhoneNumber())) {
-			throw new DuplicateResourceException("Phone Number is Already Exist: "+contactModel.getPhoneNumber());
+		if(contactRepository.existsByPhoneNumber(contactRequest.getPhoneNumber())) {
+			throw new DuplicateResourceException("Phone Number is Already Exist: "+contactRequest.getPhoneNumber());
 		}
-		return contactRepository.save(contactModel);
+		ContactModel contactModel = new ContactModel();
+		
+		contactModel.setName(contactRequest.getName());
+		contactModel.setEmail(contactRequest.getEmail());
+		contactModel.setPhoneNumber(contactRequest.getPhoneNumber());
+		contactModel.setAddress(contactRequest.getAddress());
+		
+		ContactModel response= contactRepository.save(contactModel);
+		
+		ContactResponse contactResponse=new ContactResponse();
+		
+		contactResponse.setId(response.getId());
+		contactResponse.setName(response.getName());
+		contactResponse.setEmail(response.getEmail());
+		contactResponse.setPhoneNumber(response.getPhoneNumber());
+		contactResponse.setAddress(response.getAddress());
+		
+		return contactResponse;
+		
 	}
 	
-	public ContactModel updateContact(String id,ContactModel contactModel) {
+	public ContactResponse updateContact(String id,ContactRequest contactRequest) {
 		
-		ContactModel oldContact=contactRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Contact not Found with id: "+id));
+		ContactModel contactModel=contactRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Contact not Found with id: "+id));
 		
 		
-			if(contactRepository.existsByEmail(contactModel.getEmail())) {
-				throw new DuplicateResourceException("Email is Already Exist: "+contactModel.getEmail());
+			if(contactRepository.existsByEmail(contactRequest.getEmail())) {
+				throw new DuplicateResourceException("Email is Already Exist: "+contactRequest.getEmail());
 			}
-			if(contactRepository.existsByPhoneNumber(contactModel.getPhoneNumber())) {
-				throw new DuplicateResourceException("Phone Number is Already Exist: "+contactModel.getPhoneNumber());
+			if(contactRepository.existsByPhoneNumber(contactRequest.getPhoneNumber())) {
+				throw new DuplicateResourceException("Phone Number is Already Exist: "+contactRequest.getPhoneNumber());
 			}
-			oldContact.setName(contactModel.getName());
-			oldContact.setEmail(contactModel.getEmail());
-			oldContact.setPhoneNumber(contactModel.getPhoneNumber());
-			oldContact.setAddress(contactModel.getAddress());
-			return contactRepository.save(oldContact);
+			
+			
+			contactModel.setName(contactRequest.getName());
+			contactModel.setEmail(contactRequest.getEmail());
+			contactModel.setPhoneNumber(contactRequest.getPhoneNumber());
+			contactModel.setAddress(contactRequest.getAddress());
+			
+			ContactModel response= contactRepository.save(contactModel);
+			
+			ContactResponse contactResponse=new ContactResponse();
+			
+			contactResponse.setId(response.getId());
+			contactResponse.setName(response.getName());
+			contactResponse.setEmail(response.getEmail());
+			contactResponse.setPhoneNumber(response.getPhoneNumber());
+			contactResponse.setAddress(response.getAddress());
+			
+			return contactResponse;
 		
+	}
+	
+	public void deleteContact(String id) {
+		
+		if(contactRepository.existsById(id)) {
+			
+			contactRepository.deleteById(id);
+			
+		}else {
+			
+			 throw new ResourceNotFoundException("Contact Not Found with id: "+id);
+			 
+		}
+		
+		 
+		 
+	}
+	
+	public ContactResponse getContactById(String id) {
+		
+		ContactModel contactModel= contactRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Contact not Found with id: "+id));
+		
+		ContactResponse contactResponse = new ContactResponse();
+		
+		contactResponse.setId(contactModel.getId());
+		contactResponse.setName(contactModel.getName());
+		contactResponse.setEmail(contactModel.getEmail());
+		contactResponse.setPhoneNumber(contactModel.getPhoneNumber());
+		contactResponse.setAddress(contactModel.getAddress());
+		
+		return contactResponse;
 		
 	}
 	
-	public ContactModel deleteContact(String id) {
-		ContactModel contact=contactRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Contact not Found with id: "+id));
-		 contactRepository.deleteById(id);
-		 return contact;
-	}
-	
-	public ContactModel getContactById(String id) {
-		return contactRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Contact not Found with id: "+id));
-	}
-	
-	public List<ContactModel> getAllContacts(){
-		return contactRepository.findAll();
+	public List<ContactResponse> getAllContacts(){
+		
+		List<ContactModel>list= contactRepository.findAll();
+		
+		List<ContactResponse>response=new ArrayList<>();
+		
+		for(ContactModel contactModel:list) {
+			
+			ContactResponse contactResponse=new ContactResponse();
+			
+			contactResponse.setId(contactModel.getId());
+			contactResponse.setName(contactModel.getName());
+			contactResponse.setEmail(contactModel.getEmail());
+			contactResponse.setPhoneNumber(contactModel.getPhoneNumber());
+			contactResponse.setAddress(contactModel.getAddress());
+			
+			response.add(contactResponse);
+		}
+		return response;
+		
 	}
 
 }
