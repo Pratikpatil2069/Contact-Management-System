@@ -6,6 +6,7 @@ import java.util.List;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ContactManagementSystem.ContactModel.ContactModel;
@@ -113,9 +114,18 @@ public class ContactServices {
 		
 	}
 	
-	public List<ContactResponse> getAllContacts(){
+	public List<ContactResponse> getAllContacts(String name, Pageable pageable){
 		
-		List<ContactModel>list= contactRepository.findAll();
+		List<ContactModel>list;
+		if(name==null || name.isBlank()) {
+			
+			list= contactRepository.findAll(pageable).getContent();
+			
+		}else {
+			
+			list=contactRepository.findByNameContainingIgnoreCase(name, pageable).getContent();
+		}
+		
 		
 		List<ContactResponse>response=new ArrayList<>();
 		
