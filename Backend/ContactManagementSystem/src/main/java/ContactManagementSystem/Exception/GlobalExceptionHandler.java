@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -17,8 +19,12 @@ import ContactManagementSystem.Response.ApiResponse;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
+	private static final Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
+	
 	@ExceptionHandler(ResourceNotFoundException.class)
 	public ResponseEntity<ApiResponse<ContactModel>> ResourceNotFound(ResourceNotFoundException ex){
+		
+		logger.warn(ex.getMessage());
 		
 		ApiResponse<ContactModel>response=new ApiResponse<>(false,ex.getMessage(),null,LocalDateTime.now());
 		
@@ -29,6 +35,8 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(DuplicateResourceException.class)
 	public ResponseEntity<ApiResponse<ContactModel>> DuplicateResource(DuplicateResourceException ex){
 		
+		logger.warn(ex.getMessage());
+		
 		ApiResponse<ContactModel>response=new ApiResponse<>(false,ex.getMessage(),null,LocalDateTime.now());
 		
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
@@ -38,13 +46,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Map<String, String>>> MethodArgumentNotValid(MethodArgumentNotValidException ex){
 		
+		logger.error("Validation Failed");
+		
 		Map<String, String>errors = new HashMap<>();
 
  	    for (FieldError error : ex.getBindingResult().getFieldErrors()) {
  	        errors.put(error.getField(), error.getDefaultMessage());
  	    }
-
-
 		
 		ApiResponse<Map<String, String>> response=new ApiResponse<>(false,"Validation failed", errors,LocalDateTime.now());
 		
@@ -54,6 +62,8 @@ public class GlobalExceptionHandler {
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<ContactModel>> HandleGloabalException(Exception ex){
+		
+		logger.error("Unexpected error occurred",ex);
 		
 		ApiResponse<ContactModel>response=new ApiResponse<>(false,"Something went wrong", null,LocalDateTime.now());
 		

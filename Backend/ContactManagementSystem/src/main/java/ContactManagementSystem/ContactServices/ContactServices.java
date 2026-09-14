@@ -1,13 +1,16 @@
 package ContactManagementSystem.ContactServices;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+
 
 import ContactManagementSystem.ContactModel.ContactModel;
 import ContactManagementSystem.ContactRepository.ContactRepository;
@@ -18,15 +21,19 @@ import ContactManagementSystem.Exception.ResourceNotFoundException;
 
 @Service
 public class ContactServices {
+	private static final Logger logger = LoggerFactory.getLogger(ContactServices.class);
 	
 	@Autowired
 	private ContactRepository contactRepository;
 	
 	public ContactResponse addContact(ContactRequest contactRequest) {
+		
 		if(contactRepository.existsByEmail(contactRequest.getEmail())) {
+			logger.warn("Email is Already Exist: {}",contactRequest.getEmail());
 			throw new DuplicateResourceException("Email is Already Exist: "+contactRequest.getEmail());
 		}
 		if(contactRepository.existsByPhoneNumber(contactRequest.getPhoneNumber())) {
+			logger.warn("PhoneNumber is Already Exist: {}",contactRequest.getPhoneNumber());
 			throw new DuplicateResourceException("Phone Number is Already Exist: "+contactRequest.getPhoneNumber());
 		}
 		ContactModel contactModel = new ContactModel();
@@ -46,6 +53,8 @@ public class ContactServices {
 		contactResponse.setPhoneNumber(response.getPhoneNumber());
 		contactResponse.setAddress(response.getAddress());
 		
+		logger.info("Contact Added Successfully the id is :{}",contactResponse.getId());
+		
 		return contactResponse;
 		
 	}
@@ -56,9 +65,11 @@ public class ContactServices {
 		
 		
 			if(contactRepository.existsByEmail(contactRequest.getEmail())) {
+				logger.warn("Email is Already Exist:{}",contactRequest.getEmail());
 				throw new DuplicateResourceException("Email is Already Exist: "+contactRequest.getEmail());
 			}
 			if(contactRepository.existsByPhoneNumber(contactRequest.getPhoneNumber())) {
+				logger.warn("Phone Number is Already Exist:{}",contactRequest.getPhoneNumber());
 				throw new DuplicateResourceException("Phone Number is Already Exist: "+contactRequest.getPhoneNumber());
 			}
 			
@@ -78,6 +89,8 @@ public class ContactServices {
 			contactResponse.setPhoneNumber(response.getPhoneNumber());
 			contactResponse.setAddress(response.getAddress());
 			
+			logger.info("Contact Updated successfully of id:{}",id);
+			
 			return contactResponse;
 		
 	}
@@ -87,9 +100,11 @@ public class ContactServices {
 		if(contactRepository.existsById(id)) {
 			
 			contactRepository.deleteById(id);
+			logger.info("Contact deleted Successfully of id :{}",id);
 			
 		}else {
 			
+			logger.warn("Contact does not found of id: {}",id);
 			 throw new ResourceNotFoundException("Contact Not Found with id: "+id);
 			 
 		}
@@ -110,16 +125,20 @@ public class ContactServices {
 		contactResponse.setPhoneNumber(contactModel.getPhoneNumber());
 		contactResponse.setAddress(contactModel.getAddress());
 		
+		logger.info("Contact fetched of id:{}",id);
+		
 		return contactResponse;
 		
 	}
 	
 	public List<ContactResponse> getAllContacts(String name, Pageable pageable){
 		
+		logger.info(" All Contacts  fetching with name:{}, page no:{}, page size:{}",name,pageable.getPageNumber(),pageable.getPageSize());
+		
 		List<ContactModel>list;
 		if(name==null || name.isBlank()) {
 			
-			list= contactRepository.findAll(pageable).getContent();
+		    list= contactRepository.findAll(pageable).getContent();
 			
 		}else {
 			
@@ -141,6 +160,8 @@ public class ContactServices {
 			
 			response.add(contactResponse);
 		}
+		
+		logger.info("All Contacts Fetched Successfully");
 		return response;
 		
 	}

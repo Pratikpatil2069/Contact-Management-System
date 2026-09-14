@@ -14,4 +14,5 @@ public interface ContactRepository extends MongoRepository<ContactModel,String>{
 	public boolean existsByPhoneNumber(String phoneNumber);
 	
 	Page<ContactModel> findByNameContainingIgnoreCase(String name, Pageable pageable);
+	
 }
