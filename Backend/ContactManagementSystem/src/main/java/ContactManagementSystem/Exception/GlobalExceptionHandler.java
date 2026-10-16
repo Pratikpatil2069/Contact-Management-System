@@ -1,6 +1,7 @@
 package ContactManagementSystem.Exception;
 
 import java.time.LocalDateTime;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,13 +17,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ContactManagementSystem.ContactModel.ContactModel;
 import ContactManagementSystem.Response.ApiResponse;
 
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 	
 	private static final Logger logger= LoggerFactory.getLogger(GlobalExceptionHandler.class);
 	
 	@ExceptionHandler(ResourceNotFoundException.class)
-	public ResponseEntity<ApiResponse<ContactModel>> ResourceNotFound(ResourceNotFoundException ex){
+	public ResponseEntity<ApiResponse<ContactModel>> resourceNotFound(ResourceNotFoundException ex){
 		
 		logger.warn(ex.getMessage());
 		
@@ -33,7 +35,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(DuplicateResourceException.class)
-	public ResponseEntity<ApiResponse<ContactModel>> DuplicateResource(DuplicateResourceException ex){
+	public ResponseEntity<ApiResponse<ContactModel>> duplicateResource(DuplicateResourceException ex){
 		
 		logger.warn(ex.getMessage());
 		
@@ -44,7 +46,7 @@ public class GlobalExceptionHandler {
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<ApiResponse<Map<String, String>>> MethodArgumentNotValid(MethodArgumentNotValidException ex){
+	public ResponseEntity<ApiResponse<Map<String, String>>> methodArgumentNotValid(MethodArgumentNotValidException ex){
 		
 		logger.error("Validation Failed");
 		
@@ -59,6 +61,18 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
 		
 	}
+	
+	@ExceptionHandler(InvalidCredentialsException.class)
+	public ResponseEntity<ApiResponse<Void>> invalidCredentials(InvalidCredentialsException ex){
+		
+		logger.warn("Authentication failed: {}",ex.getMessage());
+		
+		ApiResponse<Void>response=new ApiResponse<>(false,ex.getMessage(),null,LocalDateTime.now());
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+		
+	}
+	
 	
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<ContactModel>> HandleGloabalException(Exception ex){
